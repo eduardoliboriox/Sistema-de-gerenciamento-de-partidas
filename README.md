@@ -30,6 +30,13 @@ python app.py
 
 ---
 
+## 🔗 Acesso ao Sistema (Deploy)
+
+O sistema está disponível online pelo Render:
+
+➡️ **https://sistema-de-gerenciamento-de-partidas.onrender.com**
+
+---
 ## 👨‍💻 Autor
 
 * Desenvolvido por **Eduardo Libório**
