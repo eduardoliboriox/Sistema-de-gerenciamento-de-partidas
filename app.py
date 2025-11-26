@@ -115,9 +115,6 @@ def criar_tabelas_e_base():
 
 criar_tabelas_e_base()
 
-# -----------------------------
-# Reconstruir tabela atual (mesma lógica)
-# -----------------------------
 def reconstruir_tabela():
     conn = get_conn()
     df_base = pd.read_sql("SELECT * FROM tabela_base", conn, index_col="Time")
@@ -330,12 +327,12 @@ def api_classificacao():
             cls = "pos-top4"
         elif pos <= 6:
             cls = "pos-liberta"
-        elif pos <= 12:
+        elif pos <= 13:
             cls = "pos-sulamericana"
-        elif pos >= 17:
-            cls = "pos-rebaixado"
+        elif pos <= 16:
+            cls = "pos-midtable"
         else:
-            cls = ""
+            cls = "pos-rebaixado"
 
         html += f"""
         <tr>
@@ -357,7 +354,17 @@ def api_classificacao():
 @app.route('/api/matches')
 def api_matches():
     df = pd.read_sql("SELECT * FROM matches ORDER BY id DESC", get_conn())
-    html = df.to_html(classes="table table-striped table-sm", index=False)
+
+    df = df.rename(columns={
+        "id": "ID",
+        "Data": "Data",
+        "Time1": "Casa",
+        "Time2": "Fora",
+        "Gols1": "G-Casa",
+        "Gols2": "G-Fora"
+    })
+
+    html = df.to_html(classes="table table-striped table-sm tabela-historico text-center align-middle", index=False)
     return html
 
 @app.route('/api/jogos_futuros')
@@ -400,7 +407,22 @@ def api_jogos_futuros():
 @app.route('/api/cartoes')
 def api_cartoes():
     df = pd.read_sql("SELECT * FROM cartoes ORDER BY id DESC", get_conn())
-    html = df.to_html(classes="table table-striped table-sm", index=False)
+
+    df = df.rename(columns={
+        "id": "ID",
+        "Time": "Time",
+        "Jogador": "Jogador",
+        "Amarelo": "Amarelo",
+        "Vermelho": "Vermelho",
+        "Suspenso": "Suspensões",
+        "ProximoJogoSuspensao": "Data"
+    })
+
+    html = df.to_html(
+        classes="table table-striped table-sm tabela-cartoes text-center align-middle",
+        index=False
+    )
+
     return html
 
 # ---------- ações: adicionar / atualizar / excluir ----------
@@ -476,7 +498,8 @@ def action_get_fut_analysis():
         "success": True,
         "resumo": resumo,
         "jogos_html": jogos_df.to_html(classes="table table-striped table-sm text-center align-middle", index=False, escape=False),
-        "prob_html": prob_df.to_html(classes="table table-striped table-sm", index=False)
+        "prob_html": prob_df.to_html(classes="table table-striped table-sm tabela-prob", index=False)
+
     })
 
 @app.route('/action/add_cartao', methods=['POST'])
@@ -485,11 +508,26 @@ def action_add_cartao():
     jogador = request.form.get('jogador') or ""
     amarelo = request.form.get('amarelo') or 0
     vermelho = request.form.get('vermelho') or 0
+
     df, aviso = registrar_cartao_db(time, jogador, amarelo, vermelho)
+
+    df = df.rename(columns={
+        "id": "ID",
+        "Time": "Time",
+        "Jogador": "Jogador",
+        "Amarelo": "Amarelo",
+        "Vermelho": "Vermelho"
+    })
+
+    html_cartoes = df.to_html(
+        classes="table table-striped table-sm tabela-cartoes text-center align-middle",
+        index=False
+    )
+
     return jsonify({
         "success": True,
         "msg": "Cartão registrado.",
-        "cartoes_html": df.to_html(classes="table table-striped table-sm", index=False),
+        "cartoes_html": html_cartoes,
         "aviso": aviso
     })
 

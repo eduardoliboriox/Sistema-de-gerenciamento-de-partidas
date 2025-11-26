@@ -11,13 +11,11 @@
   </ul>
 
   <div class="tab-content mt-3">
-    <!-- CLASSIFICAÇÃO -->
     <div class="tab-pane fade show active" id="classificacao" role="tabpanel">
       <div id="classificacao_container">Carregando...</div>
       <small class="text-muted">Tabela atualizada dinamicamente.</small>
     </div>
 
-    <!-- JOGOS -->
     <div class="tab-pane fade" id="jogos" role="tabpanel">
       <h5>Adicionar Resultado</h5>
       <form id="form_add_result" class="row g-2 mb-3">
@@ -97,6 +95,7 @@
         </div>
         <div class="col-md-2"><button id="btn_analise_fut" class="btn btn-info">Analisar</button></div>
       </div>
+
       <div id="fut_resumo" class="mt-3"></div>
       <div id="fut_jogos" class="mt-2"></div>
       <div id="fut_probs" class="mt-2"></div>
@@ -123,121 +122,109 @@
   </div>
 </div>
 
+<!-- SCRIPTS principais -->
 <script>
-  // ===== FUNÇÃO PARA MOSTRAR / RECOLHER JOGOS FUTUROS =====
-  function configurarToggleFuturos() {
-    const tabela = document.querySelector('#tabela_futuros tbody');
-    const btn = document.getElementById('btn_toggle_futuros');
-    if (!tabela || !btn) return;
+async function load_all() {
+  document.getElementById('classificacao_container').innerHTML = await (await fetch('/api/classificacao')).text();
+  document.getElementById('matches_container').innerHTML = await (await fetch('/api/matches')).text();
+  document.getElementById('futuros_container').innerHTML =
+    await (await fetch('/api/jogos_futuros')).text();
 
-    const linhas = tabela.querySelectorAll('tr');
-    linhas.forEach((tr, idx) => {
-      if (idx >= 5) tr.style.display = 'none';
-    });
+setTimeout(() => {
+    limitarLinhasFuturos();
+}, 30);
 
-    let expandido = false;
-    btn.addEventListener('click', () => {
-      expandido = !expandido;
-      linhas.forEach((tr, idx) => {
-        tr.style.display = expandido ? '' : (idx >= 5 ? 'none' : '');
-      });
-      btn.textContent = expandido ? 'Recolher' : 'Mostrar todos';
-    });
-  }
+  document.getElementById('cartoes_container').innerHTML = await (await fetch('/api/cartoes')).text();
+}
 
-  // ===== CARREGAR TABELAS INICIAIS =====
-  async function load_all() {
-    document.getElementById('classificacao_container').innerHTML = await (await fetch('/api/classificacao')).text();
-    document.getElementById('matches_container').innerHTML = await (await fetch('/api/matches')).text();
-    document.getElementById('futuros_container').innerHTML = await (await fetch('/api/jogos_futuros')).text();
-    document.getElementById('cartoes_container').innerHTML = await (await fetch('/api/cartoes')).text();
-    configurarToggleFuturos(); // ativa o botão
-  }
+window.addEventListener('load', () => {
+  load_all();
 
-  // ===== AO CARREGAR A PÁGINA =====
-  window.addEventListener('load', () => {
-    load_all();
+  document.getElementById('btn_analise_fut').addEventListener('click', async () => {
+    const t = document.getElementById('fut_time_sel').value;
+    if (!t) return alert("Selecione um time!");
 
-    // === ADD RESULT ===
-    document.getElementById('form_add_result').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = new FormData(e.target);
-      const res = await fetch('/action/add_result', { method: 'POST', body: form });
-      const j = await res.json();
-      if (j.success) {
-        document.getElementById('classificacao_container').innerHTML = j.classificacao_html;
-        document.getElementById('matches_container').innerHTML = j.matches_html;
-        document.getElementById('jogos_msg').innerHTML = '<div class="alert alert-success">Resultado adicionado.</div>';
-        e.target.reset();
-      } else {
-        document.getElementById('jogos_msg').innerHTML = '<div class="alert alert-danger">'+j.msg+'</div>';
-      }
-    });
+    const r = await fetch('/action/get_fut_analysis?time=' + encodeURIComponent(t));
+    const j = await r.json();
 
-    // === UPDATE RESULT ===
-    document.getElementById('btn_update_result').addEventListener('click', async (e) => {
-      e.preventDefault();
-      const form = new FormData(document.getElementById('form_edit_result'));
-      const res = await fetch('/action/update_result', { method: 'POST', body: form });
-      const j = await res.json();
-      document.getElementById('jogos_msg').innerHTML = '<div class="alert alert-' + (j.success ? 'success' : 'danger') + '">' + j.msg + '</div>';
-      if (j.success) {
-        document.getElementById('classificacao_container').innerHTML = j.classificacao_html;
-        document.getElementById('matches_container').innerHTML = j.matches_html;
-      }
-    });
+    if (!j.success) return;
 
-    // === DELETE RESULT ===
-    document.getElementById('btn_delete_result').addEventListener('click', async (e) => {
-      e.preventDefault();
-      const form = new FormData(document.getElementById('form_edit_result'));
-      const res = await fetch('/action/delete_result', { method: 'POST', body: form });
-      const j = await res.json();
-      document.getElementById('jogos_msg').innerHTML = '<div class="alert alert-' + (j.success ? 'success' : 'danger') + '">' + j.msg + '</div>';
-      if (j.success) {
-        document.getElementById('classificacao_container').innerHTML = j.classificacao_html;
-        document.getElementById('matches_container').innerHTML = j.matches_html;
-      }
-    });
+    document.getElementById('fut_resumo').innerHTML = `<div class="alert alert-info">${j.resumo}</div>`;
+    document.getElementById('fut_jogos').innerHTML = j.jogos_html;
+    document.getElementById('fut_probs').innerHTML = j.prob_html;
 
-    // === ADD FUTURO ===
-    document.getElementById('form_add_futuro').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = new FormData(e.target);
-      const res = await fetch('/action/add_futuro', { method: 'POST', body: form });
-      const j = await res.json();
-      if (j.success) {
-        document.getElementById('futuros_container').innerHTML = j.futuros_html;
-        configurarToggleFuturos(); // reativa o botão
-      }
-    });
-
-    // === ANALISAR JOGOS FUTUROS ===
-    document.getElementById('btn_analise_fut').addEventListener('click', async (e) => {
-      e.preventDefault();
-      const sel = document.getElementById('fut_time_sel').value;
-      if (!sel) return alert('Selecione um time.');
-      const res = await fetch('/action/get_fut_analysis?time=' + encodeURIComponent(sel));
-      const j = await res.json();
-      if (j.success) {
-        document.getElementById('fut_resumo').innerHTML = '<div class="alert alert-info">'+j.resumo+'</div>';
-        document.getElementById('fut_jogos').innerHTML = j.jogos_html;
-        document.getElementById('fut_probs').innerHTML = j.prob_html;
-      }
-    });
-
-    // === ADD CARTÃO ===
-    document.getElementById('form_add_cartao').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = new FormData(e.target);
-      const res = await fetch('/action/add_cartao', { method: 'POST', body: form });
-      const j = await res.json();
-      if (j.success) {
-        document.getElementById('cartoes_container').innerHTML = j.cartoes_html;
-        document.getElementById('cartoes_aviso').innerHTML = j.aviso ? '<div class="alert alert-warning">'+j.aviso+'</div>' : '';
-        e.target.reset();
-      }
-    });
+    setTimeout(estilizarTabelasFuturas, 50);
   });
+});
 </script>
+
+<script>
+function limitarLinhasFuturos() {
+    const tabela = document.querySelector("#tabela_futuros");
+    if (!tabela) return;
+
+    const linhas = tabela.querySelectorAll("tbody tr");
+
+    if (linhas.length <= 5) return;
+
+    for (let i = 5; i < linhas.length; i++) {
+        linhas[i].classList.add("linha-oculta", "d-none");
+    }
+}
+</script>
+
+<script>
+function estilizarTabelasFuturas() {
+
+  // ===== TABELA DE JOGOS ANALISADOS =====
+  const tabela = document.querySelector("#fut_jogos table");
+  if (tabela) {
+    const th = tabela.querySelectorAll("thead th");
+    if (th.length === 5) {
+      th[0].innerText = "ID";
+      th[1].innerText = "Data";
+      th[2].innerText = "Casa";
+      th[3].innerText = "Fora";
+      th[4].innerText = "% Win";
+    }
+    tabela.classList.add("tabela-analise-futura");
+  }
+
+  // ===== TABELA DE PROBABILIDADES =====
+  const prob = document.querySelector("#fut_probs table");
+  if (prob) {
+    prob.classList.add("tabela-probabilidades-ajustada");
+  }
+}
+</script>
+
+<script>
+document.addEventListener("click", function(e) {
+    const btn = e.target.closest("#btn_toggle_futuros");
+    if (!btn) return;
+
+    const tabela = document.querySelector("#tabela_futuros");
+    if (!tabela) return;
+
+    const linhas = tabela.querySelectorAll("tbody tr");
+
+    const escondidas = tabela.querySelector(".linha-oculta.d-none");
+
+    if (escondidas) {
+        linhas.forEach(l => l.classList.remove("d-none"));
+        btn.textContent = "Recolher";
+    } else {
+        // Recolher devolvendo ao estado inicial (somente 5 linhas)
+        linhas.forEach((l, i) => {
+            if (i >= 5) l.classList.add("d-none");
+            else l.classList.remove("d-none");
+        });
+        btn.textContent = "Mostrar todos";
+    }
+});
+</script>
+
+</script>
+
+
 {% endblock %}

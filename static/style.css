@@ -1,106 +1,248 @@
-:root{
---bg: #ffffff;
---surface: #f7f8fa;
---muted: #6c757d;
---text: #212529;
---primary: #0d6efd; 
---accent: #0b5ed7;
---success: #198754;
---danger: #dc3545;
---card-radius: 12px;
---shadow-1: 0 1px 3px rgba(16,24,40,0.06);
---shadow-2: 0 6px 20px rgba(16,24,40,0.08);
+:root {
+    --bg: #ffffff;
+    --surface: #f7f8fa;
+    --muted: #6c757d;
+    --text: #212529;
+    --primary: #0d6efd;
+    --accent: #0b5ed7;
+    --success: #198754;
+    --danger: #dc3545;
+    --card-radius: 12px;
+    --shadow-1: 0 1px 3px rgba(16,24,40,0.06);
+    --shadow-2: 0 6px 20px rgba(16,24,40,0.08);
 }
 
-/* ====== RESET / BASE ====== */
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-background: linear-gradient(180deg, var(--surface) 0%, #ffffff 100%);
-font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial;
-color:var(--text);
-margin:0;
-line-height:1.45;
--webkit-font-smoothing:antialiased;
--moz-osx-font-smoothing:grayscale;
+/* ======================================
+   RESET / BASE
+====================================== */
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+    background: linear-gradient(180deg, var(--surface) 0%, #ffffff 100%);
+    font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial;
+    color: var(--text);
+    margin: 0;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-.container{max-width:1100px}
+.container { max-width: 1100px; }
 
-h1,h2,h3{margin:.25rem 0;color:var(--text)}
-.small-muted{color:var(--muted);font-size:.9rem}
+h1, h2, h3 { margin: .25rem 0; color: var(--text); }
 
-/* ====== NAVBAR / HEADER ====== */
-.navbar-brand{font-weight:700}
+.small-muted { color: var(--muted); font-size: .9rem; }
 
-/* ====== CARD LAYOUT ====== */
-.card--panel{
-background:var(--bg);
-border-radius:var(--card-radius);
-box-shadow:var(--shadow-1);
-border:1px solid rgba(16,24,40,0.04);
-padding:1rem;
+/* ======================================
+   NAVBAR
+====================================== */
+.navbar-brand { font-weight: 700; }
+
+/* ======================================
+   CARD LAYOUT
+====================================== */
+.card--panel {
+    background: var(--bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow-1);
+    border: 1px solid rgba(16,24,40,0.04);
+    padding: 1rem;
 }
 
-.card--section{padding:1rem;margin-bottom:1rem;background:transparent}
-
-/* ====== TABS ====== */
-.nav-tabs{
-border-bottom:0;
-gap:6px;
-justify-content:center;
-}
-.nav-tabs .nav-link{
-border:1px solid rgba(16,24,40,0.06);
-border-bottom:0;
-border-radius:8px 8px 0 0;
-padding:.45rem .8rem;
-color:var(--muted);
-background:transparent;
-}
-.nav-tabs .nav-link.active{
-background:var(--bg);
-color:var(--text);
-font-weight:600;
-box-shadow:var(--shadow-1);
+.card--section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: transparent;
 }
 
-/* ====== FORMULÁRIOS ====== */
+/* ======================================
+   TABS
+====================================== */
+.nav-tabs {
+    border-bottom: 0;
+    gap: 6px;
+    justify-content: center;
+}
+
+.nav-tabs .nav-link {
+    border: 1px solid rgba(16,24,40,0.06);
+    border-bottom: 0;
+    border-radius: 8px 8px 0 0;
+    padding: .45rem .8rem;
+    color: var(--muted);
+    background: transparent;
+}
+
+.nav-tabs .nav-link.active {
+    background: var(--bg);
+    color: var(--text);
+    font-weight: 600;
+    box-shadow: var(--shadow-1);
+}
+
+/* ======================================
+   FORMULÁRIOS / BOTÕES
+====================================== */
 .form-control,
-.form-select{
-border-radius:8px;
-border:1px solid rgba(16,24,40,0.08);
-padding:.5rem .6rem;
-}
-.btn{
-border-radius:10px;
-}
-.btn-primary{background:var(--primary);border-color:var(--primary)}
-
-
-.table-clean{
-width:100%;
+.form-select {
+    border-radius: 8px;
+    border: 1px solid rgba(16,24,40,0.08);
+    padding: .5rem .6rem;
 }
 
+.btn { border-radius: 10px; }
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+/* ======================================
+   TABELA PADRÃO
+====================================== */
+.table-clean { width: 100%; }
+
+/* ======================================
+   TABELA CARTÕES (scroll horizontal)
+====================================== */
 #cartoes_container {
-  width: 100%;
-  overflow-x: auto;          /* scroll horizontal elegante */
-  padding-bottom: 8px;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 8px;
 }
 
 #cartoes_container table {
-  width: max-content;   
-  max-width: 100%;          
+    width: max-content;
+    max-width: 100%;
 }
 
-#cartoes_container td, 
+#cartoes_container td,
 #cartoes_container th {
-  white-space: nowrap;      
+    white-space: nowrap;
 }
 
 #cartoes_container table td:nth-child(3) {
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ======================================
+   CLASSIFICAÇÃO – MOBILE HEADER
+====================================== */
+@media (max-width: 600px) {
+
+    #classificacao_container table thead th {
+        font-size: 0 !important;
+        position: relative;
+        white-space: nowrap;
+        height: 40px;
+        padding: 6px 4px !important;
+        background-color: #000 !important;
+    }
+
+    #classificacao_container table thead th::after {
+        font-size: 13px !important;
+        color: #fff !important;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        white-space: nowrap;
+    }
+
+    #classificacao_container table thead th:nth-child(1)::after { content: "#"; }
+    #classificacao_container table thead th:nth-child(2)::after { content: "Time"; }
+    #classificacao_container table thead th:nth-child(3)::after { content: "J"; }
+    #classificacao_container table thead th:nth-child(4)::after { content: "V"; }
+    #classificacao_container table thead th:nth-child(5)::after { content: "E"; }
+    #classificacao_container table thead th:nth-child(6)::after { content: "D"; }
+    #classificacao_container table thead th:nth-child(7)::after { content: "GM"; }
+    #classificacao_container table thead th:nth-child(8)::after { content: "GC"; }
+    #classificacao_container table thead th:nth-child(9)::after { content: "PTS"; }
+}
+
+/* ======================================
+   TABELA — ANÁLISE FUTURA
+====================================== */
+.tabela-analise-futura thead th {
+    text-align: center !important;
+}
+
+.tabela-analise-futura tbody td {
+    text-align: center;
+}
+
+/* ======================================
+   TABELA — PROBABILIDADES
+====================================== */
+.tabela-prob,
+.tabela-prob th,
+.tabela-prob td {
+    text-align: center !important;
+    vertical-align: middle;
+}
+
+/* ======================================
+   TABELA — HISTÓRICO
+====================================== */
+.tabela-historico,
+.tabela-historico th,
+.tabela-historico td {
+    text-align: center !important;
+    vertical-align: middle;
+}
+
+/* ======================================
+   TABELA — CARTÕES
+====================================== */
+.tabela-cartoes th,
+.tabela-cartoes td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* ======================================
+   VISIBILIDADE
+====================================== */
+.d-none { display: none !important; }
+
+.linha-oculta.d-none {
+    display: none;
+}
+
+
+/* ===== CORES DA POSIÇÃO NA CLASSIFICAÇÃO ===== */
+
+.pos-top4 {
+    background-color: #2ecc71 !important; 
+    color: #000 !important;
+    font-weight: bold;
+}
+
+.pos-liberta {
+    background-color: #a8e6a3 !important; 
+    color: #000 !important;
+    font-weight: bold;
+}
+
+.pos-sulamericana {
+    background-color: #74b9ff !important; 
+    color: #000 !important;
+    font-weight: bold;
+}
+
+.pos-midtable {
+    background-color: #2f2f2f !important; 
+    color: #fff !important;
+    font-weight: bold;
+}
+
+.pos-rebaixado {
+    background-color: #e74c3c !important; 
+    color: #fff !important;
+    font-weight: bold;
 }
